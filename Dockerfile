@@ -89,7 +89,7 @@ RUN echo "mamba activate metasim" >> ${HOME}/.bashrc
 RUN cd ${HOME}/RoboVerse \
     && eval "$(mamba shell hook --shell bash)" \
     && mamba activate metasim \
-    && uv pip install -e ".[isaaclab，mujoco]" \
+    && uv pip install -e ".[isaaclab, mujoco]" \
     && uv cache clean
 
 RUN mkdir -p ${HOME}/packages \
