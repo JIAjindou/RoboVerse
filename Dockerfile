@@ -103,13 +103,13 @@ RUN mkdir -p ${HOME}/packages \
     && pip cache purge
 
 ## Create another conda environment
-RUN mamba create -n metasim_others python=3.10 -y \
+RUN mamba create -n metasim_othsims python=3.10 -y \
     && mamba clean -a -y
 
 ## Pip install
 RUN cd ${HOME}/RoboVerse \
     && eval "$(mamba shell hook --shell bash)" \
-    && mamba activate metasim_others \
+    && mamba activate metasim_othsims \
     && uv pip install -e ".[genesis,sapien3,pybullet]" \
     && uv cache clean
 
