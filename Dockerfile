@@ -89,17 +89,29 @@ RUN echo "mamba activate metasim" >> ${HOME}/.bashrc
 RUN cd ${HOME}/RoboVerse \
     && eval "$(mamba shell hook --shell bash)" \
     && mamba activate metasim \
-    && uv pip install -e ".[isaaclab,mujoco,genesis,sapien3,pybullet]" \
+    && uv pip install -e ".[mujoco,genesis,sapien3,pybullet]" \
     && uv cache clean
 
 # Test proxy connection
 # RUN wget --method=HEAD --output-document - https://www.google.com/
 
 ## Install IsaacLab v1.4.1
+
+## Create conda environment
+RUN mamba create -n metasim_isaaclab python=3.10 -y \
+    && mamba clean -a -y
+
+## Pip install
+RUN cd ${HOME}/RoboVerse \
+    && eval "$(mamba shell hook --shell bash)" \
+    && mamba activate metasim_isaaclab \
+    && uv pip install -e ".[isaaclab]" \
+    && uv cache clean
+
 RUN mkdir -p ${HOME}/packages \
     && cd ${HOME}/packages \
     && eval "$(mamba shell hook --shell bash)" \
-    && mamba activate metasim \
+    && mamba activate metasim_isaaclab \
     && git clone --depth 1 --branch v1.4.1 https://github.com/isaac-sim/IsaacLab.git IsaacLab \
     && cd IsaacLab \
     && sed -i '/^EXTRAS_REQUIRE = {$/,/^}$/c\EXTRAS_REQUIRE = {\n    "sb3": [],\n    "skrl": [],\n    "rl-games": [],\n    "rsl-rl": [],\n    "robomimic": [],\n}' source/extensions/omni.isaac.lab_tasks/setup.py \
