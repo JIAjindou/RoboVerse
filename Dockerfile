@@ -77,21 +77,25 @@ COPY --chown=${DOCKER_USER} ./pyproject.toml ${HOME}/RoboVerse/pyproject.toml
 WORKDIR ${HOME}/RoboVerse
 
 ########################################################
-## Install isaaclab, mujoco, genesis, sapien3, pybullet
+## Install isaaclab, mujoco, sapien3, pybullet
 ########################################################
 
-## Install IsaacLab v1.4.1 and mujoco
 ## Create conda environment
 RUN mamba create -n metasim python=3.10 -y \
     && mamba clean -a -y
 RUN echo "mamba activate metasim" >> ${HOME}/.bashrc
+
 ## Pip install
 RUN cd ${HOME}/RoboVerse \
     && eval "$(mamba shell hook --shell bash)" \
     && mamba activate metasim \
-    && uv pip install -e ".[isaaclab, mujoco]" \
+    && uv pip install -e ".[isaaclab,mujoco,sapien3,pybullet]" \
     && uv cache clean
 
+# Test proxy connection
+# RUN wget --method=HEAD --output-document - https://www.google.com/
+
+## Install IsaacLab v1.4.1
 RUN mkdir -p ${HOME}/packages \
     && cd ${HOME}/packages \
     && eval "$(mamba shell hook --shell bash)" \
@@ -101,20 +105,6 @@ RUN mkdir -p ${HOME}/packages \
     && sed -i '/^EXTRAS_REQUIRE = {$/,/^}$/c\EXTRAS_REQUIRE = {\n    "sb3": [],\n    "skrl": [],\n    "rl-games": [],\n    "rsl-rl": [],\n    "robomimic": [],\n}' source/extensions/omni.isaac.lab_tasks/setup.py \
     && ./isaaclab.sh -i \
     && pip cache purge
-
-## Create another conda environment
-RUN mamba create -n metasim_othsims python=3.10 -y \
-    && mamba clean -a -y
-
-## Pip install
-RUN cd ${HOME}/RoboVerse \
-    && eval "$(mamba shell hook --shell bash)" \
-    && mamba activate metasim_othsims \
-    && uv pip install -e ".[genesis,sapien3,pybullet]" \
-    && uv cache clean
-
-# Test proxy connection
-# RUN wget --method=HEAD --output-document - https://www.google.com/
 
 ## Install IsaacLab v2.1.0
 # RUN mkdir -p ${HOME}/packages \
@@ -127,6 +117,17 @@ RUN cd ${HOME}/RoboVerse \
 #     && sed -i 's/if platform\.system() == "Linux":/if False:/' source/isaaclab_mimic/setup.py \
 #     && ./isaaclab.sh -i \
 #     && pip cache purge
+
+########################################################
+## Install genesis
+########################################################
+RUN mamba create -n metasim_genesis python=3.10 -y \
+    && mamba clean -a -y
+RUN cd ${HOME}/RoboVerse \
+    && eval "$(mamba shell hook --shell bash)" \
+    && mamba activate metasim_genesis \
+    && uv pip install -e ".[genesis]" \
+    && uv cache clean
 
 ########################################################
 ## Install isaacgym
