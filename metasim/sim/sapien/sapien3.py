@@ -138,8 +138,6 @@ class Sapien3Handler(BaseSimHandler):
                         damping = object.actuators[joint.get_name()].damping
                         if stiffness is not None and damping is not None:
                             joint.set_drive_property(stiffness, damping)
-                        else:
-                            joint.set_drive_property(0, 0)
                 else:
                     active_joints = curr_id.get_active_joints()
                     for id, joint in enumerate(active_joints):
